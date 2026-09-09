@@ -1,0 +1,45 @@
+# Local-only docs (design/agent notes, not for the remote repo)
+AGENTS.md
+FLOW.md
+PROJECTSPEC.md
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build / packaging artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+.polybench/
+
+# Compiled output directories (validation/example projects)
+bin/
+classes/
+out/
+target/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+*.iml
+
+# Local environment / secrets
+.env
+.env.*
+*.local
