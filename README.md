@@ -1,11 +1,9 @@
-# PolyBench
+# ManyBench
 
-A local-first benchmarking and experimentation platform. PolyBench does **not**
-implement its own benchmark engine — it orchestrates established ones, starting with
-**JMH** for Java.
-
-Describe what you want to measure with a source comment; PolyBench handles the
-benchmarking machinery.
+A local-first benchmarking and experimentation platform. ManyBench does not
+implement its own benchmark engine — it orchestrates established ones, starting
+with JMH for Java (the current MVP). Describe what you want to measure with a
+`@bench` source comment; ManyBench handles the benchmarking machinery.
 
 ```java
 // @bench physics-step
@@ -18,31 +16,17 @@ $ bench list
 physics-step
 
 $ bench run physics-step
-polybench.generated.PhysicsStepBenchmark.physics_step  [particles=1000]   median 0.123 ms
-polybench.generated.PhysicsStepBenchmark.physics_step  [particles=10000]  median 1.250 ms
+manybench.generated.PhysicsStepBenchmark.physics_step  [particles=1000]   median 0.123 ms
+manybench.generated.PhysicsStepBenchmark.physics_step  [particles=10000]  median 1.250 ms
 ```
-
-## Status
-
-| Area | State |
-|---|---|
-| Core experiment model | ✅ implemented (`polybench/core/`) |
-| Java adapter → JMH | ✅ implemented (Phase 1 MVP) |
-| Rust / C++ / Python adapters | ⛔ Phase 5 |
-| SQLite persistence, `bench history`/`compare`/`diff` | ⛔ Phase 2 |
-| Profiling (`bench profile`) | ⛔ Phase 3 |
-| Web UI | ⛔ Phase 4 |
-
-The full design is in [`PROJECTSPEC.md`](PROJECTSPEC.md); the end-to-end flow is
-documented in [`FLOW.md`](FLOW.md).
 
 ## Requirements
 
 - Python 3.10+
 - `javac` and `java` on `PATH` (to build and run benchmarks)
-- Network access on the **first** `bench run` (JMH jars are downloaded from Maven
-  Central and cached under `~/.cache/polybench/jmh/`; override the location with
-  `POLYBENCH_CACHE`)
+- Network access on the first `bench run` (JMH jars are downloaded from Maven
+  Central and cached under `~/.cache/manybench/jmh/`; override the location with
+  `MANYBENCH_CACHE`)
 
 ## Install
 
@@ -71,9 +55,10 @@ bench run <name> --format json  # machine-readable output
 | `--iterations` | 20 | measurement iterations |
 | `--time-ms` | unset | per-iteration time in ms (JMH default is 10 s; pass a value for quick runs) |
 
-## Annotating benchmarks
+### Annotating benchmarks
 
-Add `@bench` comments to your Java source (only `//` line comments are recognized).
+Add `@bench` comments to your Java source (only `//` line comments are
+recognized).
 
 ```java
 // @bench <name>                          marks the method below as a benchmark
@@ -83,7 +68,7 @@ Add `@bench` comments to your Java source (only `//` line comments are recognize
 // @bench-fixture <name>                  (before a method) defines a fixture
 ```
 
-### Parameters
+#### Parameters
 
 ```java
 // @bench sort
@@ -94,9 +79,9 @@ public static void sort(int[] data) { ... }
 Each value combination becomes its own benchmark configuration (the Cartesian
 product when multiple params are used).
 
-### Generators
+#### Generators
 
-Raw values can't describe complex inputs, so PolyBench supports generators:
+Raw values can't describe complex inputs, so ManyBench supports generators:
 
 ```java
 // @bench sort
@@ -104,14 +89,15 @@ Raw values can't describe complex inputs, so PolyBench supports generators:
 // @bench-param data = randomIntArray(size)
 ```
 
-Built-in generators: `randomIntArray`, `sortedIntArray` (→ `int[]`),
-`randomIntList` (→ `List<Integer>`).
+Built-in generators: `randomIntArray`, `sortedIntArray` (return `int[]`),
+`randomIntList` (returns `List<Integer>`). Generated values are built in
+`@Setup`.
 
-### Fixtures
+#### Fixtures
 
-Fixtures separate construction from measurement — the hard rule is that **setup is
-never timed with the benchmarked routine**. A fixture is a static factory method
-that builds the state passed to the benchmark:
+Fixtures separate construction from measurement — setup is never timed with the
+benchmarked routine. A fixture is a static factory method whose result is passed
+to any target argument whose type matches the fixture's return type:
 
 ```java
 public class Physics {
@@ -127,39 +113,31 @@ public class Physics {
 }
 ```
 
-The fixture's parameters must match `@bench-param` names; its result is passed to
-any target argument whose type matches the fixture's return type. The generated
-benchmark builds the fixture in `@Setup(Level.Trial)` and only times the target call.
+The fixture's parameters must match `@bench-param` names. The generated
+benchmark builds the fixture in `@Setup(Level.Trial)` and only times the target
+call.
 
-### Current limitations (deliberate)
+## Limitations
 
-- Only **single-line** method declarations are parsed.
-- Target methods must be `static`, unless a fixture supplies the receiver (instance
-  method called on the fixture).
+Current deliberate limitations:
+
+- Only single-line method declarations are parsed.
+- Target methods must be `static`, unless a fixture supplies the receiver.
 - `void` benchmarks are not `Blackhole`-guarded (dead-code elimination not yet
   defended against).
-- Only plain-`javac`/Makefile projects are built today (Gradle/Maven detection is
-  present but not yet used for building).
+- Only plain-`javac`/Makefile projects are built today.
 
-## Development
+## Notes
 
-```bash
-uv sync --extra dev   # install deps
-ruff check .          # lint
-pytest                # run tests (skip the network/JDK test with: pytest -m "not e2e")
-```
-
-Sample javac project for tests lives in `tests/java_project/`.
-
-## Architecture
-
-PolyBench is split into two halves:
-
-- **Core** (`polybench/core/`) — language-neutral model of experiments, parameters,
-  fixtures, routines, runs, and results. It knows nothing about JMH.
-- **Adapters** (`polybench/adapters/<lang>/`) — translate that model into a native
-  framework. `JavaAdapter` (`polybench/adapters/java/`) handles detection, scanning,
-  resolution, JMH code generation, build, run, and result parsing.
-
-The contract between them is the `LanguageAdapter` ABC. See
-[`FLOW.md`](FLOW.md) for a stage-by-stage trace of a `bench run`.
+- Generators are deterministic, not random: `randomIntArray` and `randomIntList`
+  seed `java.util.Random` with a fixed value (42), so every run builds the same
+  data.
+- `@bench-param` value lists are auto-typed as `boolean`, `int`, `double`, or
+  `String` only. Use a fixture when you need a `long` or another specific type.
+- Run `bench` from the project root; detection uses the current working directory
+  and reports "No Java project detected" from a subdirectory.
+- Java sources must live under `src/` (or the project root) so `javac` can find
+  them via `-sourcepath`.
+- A build system is required to run benchmarks: javac projects need a `Makefile`.
+  Gradle (`build.gradle`) and Maven (`pom.xml`) are detected but not yet used for
+  building.

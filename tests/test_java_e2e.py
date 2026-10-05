@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from polybench.adapters.java import JavaAdapter
-from polybench.core.discovery import Project
+from manybench.adapters.java import JavaAdapter
+from manybench.core.discovery import Project
 
 SAMPLE = Path(__file__).parent / "java_project"
 
@@ -40,7 +40,7 @@ def test_resolve_with_fixture() -> None:
 
 
 def test_generated_source_compiles_shape() -> None:
-    from polybench.adapters.java import generator
+    from manybench.adapters.java import generator
 
     resolved = _resolve("check-collisions")
     source = generator.generate(resolved.benchmark)

@@ -2,13 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from polybench.core.experiments import Experiment
-from polybench.core.fixtures import Fixture
-from polybench.core.parameters import Parameter, ParameterScope
+from manybench.core.experiments import Experiment
+from manybench.core.fixtures import Fixture
+from manybench.core.parameters import Parameter, ParameterScope
 
 
 def test_experiment_defaults() -> None:
-    from polybench.core.discovery import Project, Routine
+    from manybench.core.discovery import Project, Routine
 
     project = Project(path=Path("."), language="java")
     routine = Routine(
@@ -32,7 +32,7 @@ def test_parameter_requires_values_or_generator() -> None:
 
 
 def test_parameter_rejects_both() -> None:
-    from polybench.core.parameters import Generator
+    from manybench.core.parameters import Generator
 
     with pytest.raises(ValueError):
         Parameter(name="particles", values=[1, 2], generator=Generator(name="randomIntArray"))

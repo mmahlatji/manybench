@@ -25,7 +25,7 @@ _MAVEN_BASE = "https://repo1.maven.org/maven2"
 
 def _cache_dir() -> Path:
     """Return the cache directory holding downloaded JMH jars for this version."""
-    base = os.environ.get("POLYBENCH_CACHE", os.path.expanduser("~/.cache/polybench"))
+    base = os.environ.get("MANYBENCH_CACHE", os.path.expanduser("~/.cache/manybench"))
     return Path(base) / "jmh" / JMH_VERSION
 
 
@@ -38,8 +38,8 @@ def _artifact_path(group: str, name: str) -> Path:
 def _download(group: str, name: str) -> Path:
     """Download one artifact from Maven Central into the cache, atomically.
 
-    Writes to a ``.part`` temp file then renames it into place so a partial
-    download can never be mistaken for a complete jar.
+    Writes to a .part temp file then renames it into place so a partial download can
+    never be mistaken for a complete jar.
     """
     version = _VERSIONS.get(name, JMH_VERSION)
     url = f"{_MAVEN_BASE}/{group}/{name}/{version}/{name}-{version}.jar"
@@ -64,5 +64,5 @@ def ensure_jars() -> list[Path]:
 
 
 def classpath() -> str:
-    """Return the JMH classpath as a platform-appropriate path string (``:``-joined)."""
+    """Return the JMH classpath joined with the platform path separator."""
     return os.pathsep.join(str(p) for p in ensure_jars())

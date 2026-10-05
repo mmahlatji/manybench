@@ -26,7 +26,7 @@ class ProjectInfo:
 
 @dataclass
 class Routine:
-    """A single benchmarkable routine discovered in source (via ``@bench``)."""
+    """A single benchmarkable routine discovered in source (via @bench)."""
 
     name: str
     benchmark_name: str

@@ -23,7 +23,7 @@ build/
 dist/
 *.egg-info/
 *.egg
-.polybench/
+.manybench/
 
 # Compiled output directories (validation/example projects)
 bin/

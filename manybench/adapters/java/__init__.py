@@ -3,32 +3,32 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from polybench.adapters import LanguageAdapter
-from polybench.adapters.java import builder, detector, generator, parser, runner, scanner
-from polybench.adapters.java.resolver import ResolvedExperiment, resolve
-from polybench.adapters.java.scanner import ParsedBenchmark, ScanResult
-from polybench.core.discovery import Project, ProjectInfo, Routine
+from manybench.adapters import LanguageAdapter
+from manybench.adapters.java import builder, detector, generator, parser, runner, scanner
+from manybench.adapters.java.resolver import ResolvedExperiment, resolve
+from manybench.adapters.java.scanner import ParsedBenchmark, ScanResult
+from manybench.core.discovery import Project, ProjectInfo, Routine
 
 
 class JavaAdapter(LanguageAdapter):
-    """Java adapter — orchestrates ``javac`` + JMH to benchmark Java routines.
+    """Java adapter: orchestrates javac + JMH to benchmark Java routines.
 
-    Implements the ``LanguageAdapter`` contract by delegating to the submodules
+    Implements the LanguageAdapter contract by delegating to the submodules
     (detector, scanner, resolver, generator, builder, runner, parser).
     """
 
     language = "java"
 
     def detect(self, project: Path) -> ProjectInfo | None:
-        """Return a ``ProjectInfo`` if ``project`` is a Java project, else ``None``."""
+        """Return a ProjectInfo if project is a Java project, else None."""
         return detector.detect(Path(project))
 
     def scan(self, project: Path) -> ScanResult:
-        """Scan ``project`` for ``@bench`` benchmarks and ``@bench-fixture`` definitions."""
+        """Scan project for @bench benchmarks and @bench-fixture definitions."""
         return scanner.scan(Path(project))
 
     def discover_routines(self, project: Path) -> list[Routine]:
-        """Map every scanned benchmark to a language-neutral core ``Routine``."""
+        """Map every scanned benchmark to a language-neutral core Routine."""
         result = self.scan(project)
         return [
             Routine(
@@ -60,5 +60,5 @@ class JavaAdapter(LanguageAdapter):
         return runner.run(jar, args, output_dir)
 
     def normalize(self, raw) -> list:
-        """Parse raw JMH JSON into a list of ``BenchmarkResult``."""
+        """Parse raw JMH JSON into a list of BenchmarkResult."""
         return parser.parse(raw, "")

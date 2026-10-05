@@ -4,16 +4,16 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Any
 
-from polybench.core.discovery import ProjectInfo, Routine
-from polybench.core.experiments import Experiment
-from polybench.core.results import BenchmarkResult
+from manybench.core.discovery import ProjectInfo, Routine
+from manybench.core.experiments import Experiment
+from manybench.core.results import BenchmarkResult
 
 
 class LanguageAdapter(ABC):
     """Translates the universal experiment model into one language's benchmark framework.
 
-    Concrete adapters (e.g. ``JavaAdapter`` → JMH) implement all six methods.
-    ``Any`` is used as a placeholder because each adapter deals in its own
+    Concrete adapters (e.g. JavaAdapter -> JMH) implement all six methods.
+    Any is used as a placeholder because each adapter deals in its own
     language-specific artifact/result types.
     """
 
@@ -21,17 +21,17 @@ class LanguageAdapter(ABC):
 
     @abstractmethod
     def detect(self, project: Any) -> ProjectInfo:
-        """Return ``ProjectInfo`` if ``project`` is in this language, else ``None``."""
+        """Return ProjectInfo if project is in this language, else None."""
         ...
 
     @abstractmethod
     def discover_routines(self, project: Any) -> list[Routine]:
-        """Find benchmarkable routines (via ``@bench`` comments) in ``project``."""
+        """Find benchmarkable routines (via @bench comments) in project."""
         ...
 
     @abstractmethod
     def generate_benchmark(self, experiment: Experiment) -> Any:
-        """Produce a framework-specific benchmark artifact from an ``Experiment``."""
+        """Produce a framework-specific benchmark artifact from an Experiment."""
         ...
 
     @abstractmethod
@@ -46,5 +46,5 @@ class LanguageAdapter(ABC):
 
     @abstractmethod
     def normalize(self, raw: Any) -> BenchmarkResult:
-        """Convert raw framework output into the universal ``BenchmarkResult``."""
+        """Convert raw framework output into the universal BenchmarkResult."""
         ...

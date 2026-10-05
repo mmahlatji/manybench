@@ -21,7 +21,7 @@ class ParameterScope(Enum):
 
 @dataclass
 class Generator:
-    """A language-specific value generator, e.g. ``randomIntArray(size)``."""
+    """A language-specific value generator, e.g. randomIntArray(size)."""
 
     name: str
     arguments: list[str] = field(default_factory=list)

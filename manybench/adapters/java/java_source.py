@@ -40,9 +40,9 @@ class JavaFile:
 
 
 def _split_top_level(text: str, separator: str = ",") -> list[str]:
-    """Split ``text`` on ``separator`` occurrences not nested in ``<>`` or ``()``.
+    """Split text on separator occurrences not nested in <> or ().
 
-    Used to split generic parameter lists (``Map<String, Integer>, int``) without
+    Used to split generic parameter lists (Map<String, Integer>, int) without
     breaking on commas inside angle brackets or parentheses.
     """
     parts: list[str] = []
@@ -65,16 +65,16 @@ def _split_top_level(text: str, separator: str = ",") -> list[str]:
 
 
 def parse_method(declaration: str) -> MethodSig | None:
-    """Parse a single-line method declaration into a ``MethodSig``.
+    """Parse a single-line method declaration into a MethodSig.
 
-    Handles modifiers, generic return types (``Map<String, Integer> m()``) and
-    generic/array parameters. Returns ``None`` if the line is not a plain method
+    Handles modifiers, generic return types (Map<String, Integer> m()) and
+    generic/array parameters. Returns None if the line is not a plain method
     declaration (e.g. a field, constructor, or nested annotation).
     """
     line = declaration.split("{", 1)[0].strip()
     line = line.split(";")[0].strip()
     if "throws" in line:
-        # Strip a trailing `throws ...` clause after the closing paren.
+        # Strip a trailing throws clause after the closing paren.
         close = line.rfind(")")
         if close != -1 and close < len(line) - 1:
             line = line[: close + 1].strip()
@@ -87,8 +87,8 @@ def parse_method(declaration: str) -> MethodSig | None:
     head = line[:open_paren].strip()
     params_str = line[open_paren + 1 : close_paren]
 
-    # The method name is the last identifier before `(`; everything before it is
-    # modifiers + return type (which may contain spaces inside generics).
+    # The method name is the last identifier before the opening paren; everything
+    # before it is modifiers + return type (which may contain spaces in generics).
     name = head.rsplit(None, 1)[-1]
     if not _IDENTIFIER.match(name):
         return None
@@ -126,15 +126,15 @@ def parse_method(declaration: str) -> MethodSig | None:
 
 
 def parse_package(line: str) -> str | None:
-    """Extract the package name from a ``package a.b.c;`` line, if present."""
+    """Extract the package name from a package declaration line, if present."""
     match = re.search(r"\bpackage\s+([A-Za-z_$.][A-Za-z0-9_$.]*)", line)
     return match.group(1) if match else None
 
 
 def parse_import(line: str) -> tuple[str, str] | None:
-    """Extract ``(SimpleName, f.q.Name)`` from a single-type import line.
+    """Extract (SimpleName, f.q.Name) from a single-type import line.
 
-    Returns ``None`` for wildcard or static imports (handled separately / ignored).
+    Returns None for wildcard or static imports (handled separately / ignored).
     """
     match = re.search(r"\bimport\s+(?:static\s+)?([A-Za-z_$.][A-Za-z0-9_$.]*)", line)
     if not match:
@@ -147,13 +147,13 @@ def parse_import(line: str) -> tuple[str, str] | None:
 
 
 def parse_wildcard_import(line: str) -> str | None:
-    """Extract the package prefix from a wildcard import ``import a.b.*;``."""
+    """Extract the package prefix from a wildcard import (import a.b.*)."""
     match = re.search(r"\bimport\s+([A-Za-z_$.][A-Za-z0-9_$.]*\.\*)", line)
     return match.group(1)[:-2] if match else None
 
 
 def parse_file(path: str, text: str) -> JavaFile:
-    """Parse a Java file's ``package`` and ``import`` declarations into a ``JavaFile``."""
+    """Parse a Java file's package and import declarations into a JavaFile."""
     jf = JavaFile(path=path)
     for line in text.splitlines():
         stripped = line.strip()
@@ -179,8 +179,8 @@ def resolve_type(type_str: str, jf: JavaFile) -> str:
 
     Generated code uses fully-qualified names everywhere (so it needs no imports),
     hence this mapping: primitives pass through, arrays and generics recurse,
-    ``java.lang`` names are prefixed, imported names use their import, and anything
-    else is assumed to live in the file's own package.
+    java.lang names are prefixed, imported names use their import, and anything else
+    is assumed to live in the file's own package.
     """
     type_str = type_str.strip()
     if type_str in _PRIMITIVES:

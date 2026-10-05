@@ -1,11 +1,11 @@
-"""Discover `@bench` routines in Java source files."""
+"""Discover @bench routines in Java source files."""
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from polybench.adapters.java import java_source
+from manybench.adapters.java import java_source
 
 _BENCH_RE = re.compile(r"^\s*//\s*@bench\s+([A-Za-z_$][\w$-]*)\s*$")
 _BENCH_PARAM_RE = re.compile(r"^\s*//\s*@bench-param\s+([A-Za-z_$][\w$]*)\s*=\s*(.+?)\s*$")
@@ -17,7 +17,7 @@ _IGNORED_DIRS = {".git", "bin", "build", "out", "target"}
 
 @dataclass
 class BenchParam:
-    """One ``@bench-param`` line: either a fixed value list or a generator call."""
+    """One @bench-param line: either a fixed value list or a generator call."""
 
     name: str
     values: list[str] | None = None
@@ -27,7 +27,7 @@ class BenchParam:
 
 @dataclass
 class ParsedBenchmark:
-    """A single ``@bench`` routine fully parsed from source."""
+    """A single @bench routine fully parsed from source."""
 
     benchmark_name: str
     file: Path
@@ -45,7 +45,7 @@ class ParsedBenchmark:
 
 @dataclass
 class ParsedFixture:
-    """A ``@bench-fixture`` factory method parsed from source."""
+    """A @bench-fixture factory method parsed from source."""
 
     name: str
     file: Path
@@ -68,12 +68,12 @@ class ScanResult:
 
 
 def _parse_bench_param(name: str, value_expr: str) -> BenchParam:
-    """Parse the right-hand side of a ``@bench-param`` into a ``BenchParam``.
+    """Parse the right-hand side of a @bench-param into a BenchParam.
 
     Three shapes are accepted:
-      ``[1, 2, 3]``        -> a fixed list of values
-      ``gen(a, b)``        -> a generator with arguments
-      ``42``               -> a single value (wrapped in a one-element list)
+      [1, 2, 3]        -> a fixed list of values
+      gen(a, b)        -> a generator with arguments
+      42               -> a single value (wrapped in a one-element list)
     """
     if value_expr.startswith("[") and value_expr.endswith("]"):
         inner = value_expr[1:-1]
@@ -92,9 +92,9 @@ def _parse_bench_param(name: str, value_expr: str) -> BenchParam:
 
 
 def _find_method(lines: list[str], start: int) -> tuple[java_source.MethodSig | None, int]:
-    """Return the first method declaration at or after ``start`` and its 1-based line.
+    """Return the first method declaration at or after start and its 1-based line.
 
-    Skips blank lines and comment lines. Returns ``(None, line)`` when the next
+    Skips blank lines and comment lines. Returns (None, line) when the next
     meaningful line is not a parseable method declaration.
     """
     for idx in range(start, len(lines)):
@@ -109,7 +109,7 @@ def _find_method(lines: list[str], start: int) -> tuple[java_source.MethodSig | 
 
 
 def _iter_java_files(path: Path):
-    """Yield ``*.java`` files under ``path`` in sorted order, skipping build dirs."""
+    """Yield *.java files under path in sorted order, skipping build dirs."""
     for java_file_path in sorted(path.rglob("*.java")):
         if any(part in _IGNORED_DIRS for part in java_file_path.parts):
             continue
@@ -117,19 +117,19 @@ def _iter_java_files(path: Path):
 
 
 def scan(path: Path) -> ScanResult:
-    """Discover all ``@bench`` benchmarks and ``@bench-fixture`` definitions in ``path``.
+    """Discover all @bench benchmarks and @bench-fixture definitions in path.
 
     Scans each Java file in a single line-by-line pass:
 
-    - a ``@bench <name>`` line collects its following ``@bench-param`` /
-      ``@bench-fixture`` comment block, then parses the method declaration below it
-      into a ``ParsedBenchmark``;
-    - a standalone ``@bench-fixture <name>`` line (not part of a ``@bench`` block)
-      marks the method below it as a fixture *definition*.
+    - a @bench <name> line collects its following @bench-param / @bench-fixture
+      comment block, then parses the method declaration below it into a
+      ParsedBenchmark;
+    - a standalone @bench-fixture <name> line (not part of a @bench block) marks
+      the method below it as a fixture definition.
 
-    The single pass is important: a ``@bench-fixture`` line that appears inside a
-    ``@bench`` block is a *reference*, not a definition, and is consumed there so it
-    is never mistaken for a fixture factory.
+    The single pass is important: a @bench-fixture line that appears inside a
+    @bench block is a reference, not a definition, and is consumed there so it is
+    never mistaken for a fixture factory.
     """
     path = Path(path)
     benchmarks: list[ParsedBenchmark] = []

@@ -1,7 +1,7 @@
 """Normalize raw JMH JSON into the universal BenchmarkResult model."""
 from __future__ import annotations
 
-from polybench.core.results import BenchmarkResult, TimingResult
+from manybench.core.results import BenchmarkResult, TimingResult
 
 _UNIT_TO_NS = {
     "ns/op": 1.0,
@@ -12,7 +12,7 @@ _UNIT_TO_NS = {
 
 
 def _coerce(value):
-    """Convert a JMH ``@Param`` string value into a Python bool/int/float (or string).
+    """Convert a JMH @Param string value into a Python bool/int/float (or string).
 
     JMH reports all parameter values as strings, so the parser re-infers their types.
     """
@@ -41,11 +41,11 @@ def _to_ns(value, factor: float) -> int | None:
 
 
 def parse(raw_json: list | None, experiment_id: str) -> list[BenchmarkResult]:
-    """Normalize raw JMH JSON (a list of result objects) into ``BenchmarkResult``s.
+    """Normalize raw JMH JSON (a list of result objects) into BenchmarkResults.
 
-    For each entry it maps ``primaryMetric`` onto a ``TimingResult``: median and p95
-    come from ``scorePercentiles``, the mean from ``score``, all converted to
-    nanoseconds. Parameter values (``entry["params"]``) are type-coerced.
+    For each entry it maps primaryMetric onto a TimingResult: median and p95 come
+    from scorePercentiles, the mean from score, all converted to nanoseconds.
+    Parameter values (entry["params"]) are type-coerced.
     """
     if not raw_json:
         return []

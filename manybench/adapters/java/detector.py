@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from polybench.core.discovery import ProjectInfo
+from manybench.core.discovery import ProjectInfo
 
 _IGNORED_DIRS = {
     ".git", ".venv", "venv", "bin", "build", "out", "target", "node_modules", "__pycache__",
@@ -17,7 +17,7 @@ _BUILD_SYSTEM_MARKERS = [
 
 
 def _java_files(path: Path) -> list[Path]:
-    """Return all ``*.java`` files under ``path``, skipping build/tool directories."""
+    """Return all *.java files under path, skipping build/tool directories."""
     files: list[Path] = []
     for candidate in path.rglob("*.java"):
         if any(part in _IGNORED_DIRS for part in candidate.parts):
@@ -29,8 +29,8 @@ def _java_files(path: Path) -> list[Path]:
 def detect_build_system(path: Path) -> str | None:
     """Identify the project's build system from root-level marker files.
 
-    Checks in priority order so that, e.g., a project with both ``pom.xml`` and a
-    ``Makefile`` is reported as Maven rather than plain javac.
+    Checks in priority order so that, e.g., a project with both pom.xml and a
+    Makefile is reported as Maven rather than plain javac.
     """
     markers = {marker.name: marker for marker in path.iterdir()}
     for build_system, names in _BUILD_SYSTEM_MARKERS:
@@ -40,10 +40,10 @@ def detect_build_system(path: Path) -> str | None:
 
 
 def detect(path: Path) -> ProjectInfo | None:
-    """Detect whether ``path`` is a Java project.
+    """Detect whether path is a Java project.
 
-    Returns ``None`` when the path is not a directory or contains no Java sources;
-    otherwise returns a ``ProjectInfo`` describing the language and build system.
+    Returns None when the path is not a directory or contains no Java sources;
+    otherwise returns a ProjectInfo describing the language and build system.
     """
     path = Path(path)
     if not path.is_dir():

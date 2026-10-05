@@ -8,7 +8,7 @@ import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from polybench.adapters.java import generator, jmh
+from manybench.adapters.java import generator, jmh
 
 
 class BuildError(Exception):
@@ -26,7 +26,7 @@ _CLASS_NAME_RE = re.compile(r"public\s+class\s+([A-Za-z_$][\w$]*)")
 
 
 def _find_javac() -> str:
-    """Locate ``javac`` on PATH, or raise ``BuildError`` with a helpful message."""
+    """Locate javac on PATH, or raise BuildError with a helpful message."""
     javac = shutil.which("javac")
     if javac is None:
         raise BuildError("javac not found on PATH; install a JDK to build benchmarks")
@@ -36,8 +36,8 @@ def _find_javac() -> str:
 def _source_root(project: Path) -> Path:
     """Return the directory whose subfolders map to Java packages.
 
-    Prefers ``project/src`` (the common convention); otherwise falls back to the
-    project root. This is used as javac's ``-sourcepath``.
+    Prefers project/src (the common convention); otherwise falls back to the project
+    root. This is used as javac's -sourcepath.
     """
     src = project / "src"
     if src.is_dir():
@@ -52,19 +52,19 @@ def build(project: Path, benchmark_sources: list[str]) -> BuildResult:
       1. ensure the JMH jars are cached (downloading on first use);
       2. write the generated sources into a throwaway build dir (each file named
          after its public class, since Java requires the filename to match);
-      3. run ``javac`` with the JMH annotation processor on the classpath and the
-         project source root on ``-sourcepath`` — this lets javac implicitly compile
-         only the user classes the benchmark references, not the whole project;
-      4. verify the processor produced ``META-INF/BenchmarkList``;
-      5. assemble ``benchmarks.jar`` with a manifest pointing at the JMH jars via
-         ``Class-Path``.
+      3. run javac with the JMH annotation processor on the classpath and the
+         project source root on -sourcepath; this lets javac implicitly compile only
+         the user classes the benchmark references, not the whole project;
+      4. verify the processor produced META-INF/BenchmarkList;
+      5. assemble benchmarks.jar with a manifest pointing at the JMH jars via
+         Class-Path.
     """
     javac = _find_javac()
     jars = jmh.ensure_jars()
     classpath = [str(p) for p in jars]
 
-    build_dir = Path(tempfile.mkdtemp(prefix="polybench-build-"))
-    gen_dir = build_dir / "gen" / "polybench" / "generated"
+    build_dir = Path(tempfile.mkdtemp(prefix="manybench-build-"))
+    gen_dir = build_dir / "gen" / "manybench" / "generated"
     gen_dir.mkdir(parents=True, exist_ok=True)
     classes_dir = build_dir / "classes"
     classes_dir.mkdir()

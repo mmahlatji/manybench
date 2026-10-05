@@ -21,7 +21,7 @@ class RunResult:
 
 
 def _find_java() -> str:
-    """Locate ``java`` on PATH, or raise ``RunError``."""
+    """Locate java on PATH, or raise RunError."""
     java = shutil.which("java")
     if java is None:
         raise RunError("java not found on PATH")
@@ -31,9 +31,9 @@ def _find_java() -> str:
 def run(jar: Path, args: list[str], output_dir: Path) -> RunResult:
     """Execute the JMH jar and return captured output plus the parsed JSON results.
 
-    JMH is asked to write machine-readable JSON via ``-rf json -rff <path>``. If the
-    run crashes or the JSON is malformed, ``raw_json`` is ``None`` (the caller then
-    reports failure using ``stderr``).
+    JMH is asked to write machine-readable JSON via -rf json -rff <path>. If the run
+    crashes or the JSON is malformed, raw_json is None (the caller then reports
+    failure using stderr).
     """
     java = _find_java()
     output_dir = Path(output_dir)

@@ -1,9 +1,9 @@
 """Generate JMH benchmark source from a resolved benchmark."""
 from __future__ import annotations
 
-from polybench.adapters.java.resolver import ResolutionError, ResolvedBenchmark
+from manybench.adapters.java.resolver import ResolutionError, ResolvedBenchmark
 
-GENERATED_PACKAGE = "polybench.generated"
+GENERATED_PACKAGE = "manybench.generated"
 
 _GENERATORS_TEMPLATE = """package {package};
 
@@ -66,15 +66,15 @@ public class {class_name} {{
 
 
 def generate(benchmark: ResolvedBenchmark) -> str:
-    """Render a ``ResolvedBenchmark`` into a complete JMH benchmark ``.java`` source."""
+    """Render a ResolvedBenchmark into a complete JMH benchmark .java source."""
     return _render_benchmark(benchmark)
 
 
 def generate_generators() -> str:
-    """Return the source for the shared ``Generators`` helper class.
+    """Return the source for the shared Generators helper class.
 
     This class is always emitted alongside the benchmark so that generator-backed
-    ``@bench-param`` lines have concrete implementations to call in ``@Setup``.
+    @bench-param lines have concrete implementations to call in @Setup.
     """
     return _GENERATORS_TEMPLATE.format(package=GENERATED_PACKAGE)
 
@@ -83,12 +83,12 @@ def _render_benchmark(b: ResolvedBenchmark) -> str:
     """Assemble the JMH class body from the resolved benchmark fields.
 
     Non-obvious details:
-      * ``@Param`` values are emitted as bare strings inside ``{}`` because JMH
-        parses them itself and converts them to the field type;
-      * the fixture result is stored in a private field ``__fixture`` assigned in
-        ``@Setup(Level.Trial)`` so construction is never part of the timed region;
-      * benchmark method names have ``-`` replaced with ``_`` (JMH/Java identifiers
-        cannot contain hyphens).
+      - @Param values are emitted as bare strings inside {} because JMH parses them
+        itself and converts them to the field type;
+      - the fixture result is stored in a private field __fixture assigned in
+        @Setup(Level.Trial) so construction is never part of the timed region;
+      - benchmark method names have - replaced with _ (JMH/Java identifiers cannot
+        contain hyphens).
     """
     param_field_lines: list[str] = []
     for pf in b.param_fields:

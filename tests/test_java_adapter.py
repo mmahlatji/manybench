@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from polybench.adapters.java import detector, java_source, scanner
+from manybench.adapters.java import detector, java_source, scanner
 
 SAMPLE = Path(__file__).parent / "java_project"
 

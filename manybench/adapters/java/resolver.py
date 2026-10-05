@@ -4,13 +4,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from polybench.adapters.java import java_source
-from polybench.adapters.java.scanner import ParsedBenchmark, ParsedFixture
-from polybench.core.config import MeasurementConfig, WarmupConfig
-from polybench.core.discovery import Project, Routine
-from polybench.core.experiments import Experiment
-from polybench.core.fixtures import Fixture
-from polybench.core.parameters import Generator, Parameter, ParameterScope
+from manybench.adapters.java import java_source
+from manybench.adapters.java.scanner import ParsedBenchmark, ParsedFixture
+from manybench.core.config import MeasurementConfig, WarmupConfig
+from manybench.core.discovery import Project, Routine
+from manybench.core.experiments import Experiment
+from manybench.core.fixtures import Fixture
+from manybench.core.parameters import Generator, Parameter, ParameterScope
 
 GENERATORS: dict[str, tuple[str, list[str]]] = {
     "randomIntArray": ("int[]", ["size"]),
@@ -25,7 +25,7 @@ class ResolutionError(Exception):
 
 @dataclass
 class ParamField:
-    """A value parameter mapped to a JMH ``@Param`` field."""
+    """A value parameter mapped to a JMH @Param field."""
 
     name: str
     type: str
@@ -34,7 +34,7 @@ class ParamField:
 
 @dataclass
 class GeneratorField:
-    """A generator parameter: a field produced by ``Generators`` during ``@Setup``."""
+    """A generator parameter: a field produced by Generators during @Setup."""
 
     name: str
     generator: str
@@ -70,18 +70,17 @@ class ResolvedBenchmark:
 
 @dataclass
 class ResolvedExperiment:
-    """The resolution output: the codegen plan plus the core ``Experiment`` model."""
+    """The resolution output: the codegen plan plus the core Experiment model."""
 
     experiment: Experiment
     benchmark: ResolvedBenchmark
 
 
 def _infer_value_type(values: list[str]) -> str:
-    """Guess a Java primitive/type for a list of raw ``@Param`` values.
+    """Guess a Java primitive/type for a list of raw @Param values.
 
-    All booleans -> ``boolean``; all integers -> ``int``; all numbers -> ``double``;
-    otherwise ``java.lang.String``. Used only when no target/fixture signature
-    provides the type.
+    All booleans -> boolean; all integers -> int; all numbers -> double; otherwise
+    java.lang.String. Used only when no target/fixture signature provides the type.
     """
     lowered = [v.lower() for v in values]
 
@@ -124,14 +123,14 @@ def _coerce_value(value: str):
 def resolve(
     benchmark: ParsedBenchmark, fixtures: list[ParsedFixture], project: Project
 ) -> ResolvedExperiment:
-    """Turn a parsed benchmark into a codegen-ready ``ResolvedBenchmark`` + core ``Experiment``.
+    """Turn a parsed benchmark into a codegen-ready ResolvedBenchmark + core Experiment.
 
-    Responsibilities (see FLOW.md §4 Stage 5):
-      * validate the target method and locate its fixture (if referenced);
-      * decide each ``@Param`` field's Java type (fixture types win over target
-        types so a setup parameter keeps its fixture type on name collisions);
-      * split ``@bench-param`` lines into ``@Param`` fields vs. generated fields;
-      * resolve each target-method argument to a field, a generator result, or the
+    Responsibilities:
+      - validate the target method and locate its fixture (if referenced);
+      - decide each @Param field's Java type (fixture types win over target types
+        so a setup parameter keeps its fixture type on name collisions);
+      - split @bench-param lines into @Param fields vs. generated fields;
+      - resolve each target-method argument to a field, a generator result, or the
         fixture result, erroring when nothing matches.
     """
     if not benchmark.is_static and not benchmark.fixture_ref:
@@ -290,7 +289,7 @@ def resolve(
 def _to_pascal(name: str) -> str:
     """Convert a kebab/snake-case benchmark name to PascalCase.
 
-    ``physics-step`` -> ``PhysicsStep``; empty input falls back to ``Benchmark``.
+    physics-step -> PhysicsStep; empty input falls back to Benchmark.
     """
     parts = [p for p in name.replace("_", "-").split("-") if p]
     return "".join(p[:1].upper() + p[1:] for p in parts) or "Benchmark"

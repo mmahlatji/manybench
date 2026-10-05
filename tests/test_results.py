@@ -1,6 +1,6 @@
 import json
 
-from polybench.core.results import BenchmarkResult, TimingResult
+from manybench.core.results import BenchmarkResult, TimingResult
 
 
 def test_benchmark_result_defaults() -> None:

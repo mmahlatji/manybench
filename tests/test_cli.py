@@ -2,7 +2,7 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from polybench.cli.main import app
+from manybench.cli.main import app
 
 runner = CliRunner()
 
